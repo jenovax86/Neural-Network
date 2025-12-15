@@ -64,18 +64,20 @@ class NeuralNetwork:
                 self.feed_forward(input_batch)
                 self.backpropagation(input_batch, target_batch)
 
-                if epoch % 100 == 0:
-                    prediction = self.feed_forward(inputs)
-                    print(
-                        f" epoch: {epoch}, Loss: {self.compute_loss(prediction, targets)}"
-                    )
+            if epoch % 100 == 0:
+                prediction = self.feed_forward(inputs)
+                print(
+                    f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets)}"
+                )
 
     def train_model(self, inputs, targets, epochs):
         for epoch in range(epochs):
-            output = self.feed_forward(inputs)
+            prediction = self.feed_forward(inputs)
             self.backpropagation(inputs, targets)
             if epoch % 100 == 0:
-                print(self.compute_loss(output, targets))
+                print(
+                    f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets)}"
+                )
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
