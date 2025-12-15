@@ -26,11 +26,11 @@ class NeuralNetwork:
 
         return self.predicted_output
 
-    def backpropagation(self, inputs, correct_output):
+    def backpropagation(self, inputs, targets):
         inputs = np.array(inputs, ndmin=2)
-
+        targets = np.array(targets, ndmin= 2)
         output_delta = (
-            self.predicted_output - correct_output
+            self.predicted_output - targets
         ) * self.sigmoid_derivative(self.predicted_output)
         hidden_delta = np.dot(
             output_delta, self.hidden_output_weights.T
