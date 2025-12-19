@@ -15,11 +15,17 @@ class DataLoader:
         self.train_image_filepath = train_image_filepath
         self.train_label_filepath = train_label_filepath
 
+    def one_hot_encode_labels(self, labels, number_of_classes):
+        labels_vector = np.zeros((labels.shape[0], number_of_classes))
+        labels_vector[np.arange(labels.shape[0]), labels] = 1
+        return labels_vector
+
     def read_images(self, filepath):
+        pixel_max_value = 255.0
         with open(filepath, "rb") as file:
             _, number_images, rows, columns = struct.unpack(">IIII", file.read(16))
             file_data = np.frombuffer(file.read(), dtype=np.uint8)
-            data = file_data.reshape(number_images, rows * columns)
+            data = file_data.reshape(number_images, rows * columns) / pixel_max_value
             return data
 
     def read_labels(self, filepath):
@@ -32,9 +38,9 @@ class DataLoader:
     def load_training_data(self):
         input_train = self.read_images(self.train_image_filepath)
         output_train = self.read_labels(self.train_label_filepath)
-        return input_train, output_train
+        return input_train, self.one_hot_encode_labels(output_train, 10)
 
     def load_test_data(self):
         input_test = self.read_images(self.test_images_filepath)
         output_test = self.read_labels(self.test_labels_filepath)
-        return input_test, output_test
+        return input_test, self.one_hot_encode_labels(output_test, 10)

@@ -7,12 +7,17 @@ class NeuralNetwork:
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.learning_rate = learning_rate
+        self.weight_scale = 0.01
 
-        self.input_hidden_weights = np.random.rand(self.input_size, self.hidden_size)
-        self.hidden_output_weights = np.random.rand(self.hidden_size, self.output_size)
+        self.input_hidden_weights = (
+            np.random.randn(self.input_size, self.hidden_size) * self.weight_scale
+        )
+        self.hidden_output_weights = (
+            np.random.randn(self.hidden_size, self.output_size) * self.weight_scale
+        )
 
-        self.hidden_layer_bias = np.random.rand(self.hidden_size)
-        self.output_layer_bias = np.random.rand(self.output_size)
+        self.hidden_layer_bias = np.zeros(self.hidden_size)
+        self.output_layer_bias = np.zeros(self.output_size)
 
     def feed_forward(self, input_array):
         self.hidden_layer_output = self.sigmoid(
@@ -23,15 +28,14 @@ class NeuralNetwork:
             np.dot(self.hidden_layer_output, self.hidden_output_weights)
             + self.output_layer_bias
         )
-
         return self.predicted_output
 
     def backpropagation(self, inputs, targets):
         inputs = np.array(inputs, ndmin=2)
-        targets = np.array(targets, ndmin= 2)
-        output_delta = (
-            self.predicted_output - targets
-        ) * self.sigmoid_derivative(self.predicted_output)
+        targets = np.array(targets, ndmin=2)
+        output_delta = (self.predicted_output - targets) * self.sigmoid_derivative(
+            self.predicted_output
+        )
         hidden_delta = np.dot(
             output_delta, self.hidden_output_weights.T
         ) * self.sigmoid_derivative(self.hidden_layer_output)
@@ -57,27 +61,30 @@ class NeuralNetwork:
             mini_batches.append((input_batch, target_batch))
         return mini_batches
 
-    def stochastic_gradient_descent(self, inputs, targets, epochs, batch_size=32):
+    def stochastic_gradient_descent(self, inputs, targets, epochs, batch_size=128):
         for epoch in range(epochs):
             mini_batches = self.create_mini_batches(inputs, targets, batch_size)
             for input_batch, target_batch in mini_batches:
                 self.feed_forward(input_batch)
                 self.backpropagation(input_batch, target_batch)
 
-            if epoch % 100 == 0:
-                prediction = self.feed_forward(inputs)
+            if epoch % 10 == 0:
+                prediction = self.feed_forward(inputs[:1024])
                 print(
-                    f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets)}"
+                    f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets[:1024])}"
                 )
 
     def train_model(self, inputs, targets, epochs):
         for epoch in range(epochs):
             prediction = self.feed_forward(inputs)
             self.backpropagation(inputs, targets)
-            if epoch % 100 == 0:
+            if epoch % 10 == 0:
                 print(
                     f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets)}"
                 )
+
+    def predict_number(self, input):
+        return np.argmax(input, axis=1)
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
