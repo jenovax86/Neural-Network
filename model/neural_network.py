@@ -62,6 +62,7 @@ class NeuralNetwork:
         return mini_batches
 
     def stochastic_gradient_descent(self, inputs, targets, epochs, batch_size=128):
+        limit_size = 1024
         for epoch in range(epochs):
             mini_batches = self.create_mini_batches(inputs, targets, batch_size)
             for input_batch, target_batch in mini_batches:
@@ -69,9 +70,9 @@ class NeuralNetwork:
                 self.backpropagation(input_batch, target_batch)
 
             if epoch % 10 == 0:
-                prediction = self.feed_forward(inputs[:1024])
+                prediction = self.feed_forward(inputs[:limit_size])
                 print(
-                    f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets[:1024])}"
+                    f" Epoch: {epoch}, Loss: {self.compute_loss(prediction, targets[:limit_size])}"
                 )
 
     def train_model(self, inputs, targets, epochs):
